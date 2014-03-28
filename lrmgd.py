@@ -39,7 +39,7 @@ def friends(flearn, ftest):
     line=f.readline();
     while(line):
         tk = line.split(',')
-        x.append([float(tk[3]),float(tk[6]), float(tk[7]), float(tk[8])])
+        x.append([float(tk[3]),float(tk[6]), float(tk[7]), float(tk[8]), 1.0])
         y.append(float(tk[-1]))
         line=f.readline()
     f.close()
@@ -52,7 +52,7 @@ def friends(flearn, ftest):
     i = 0
     while(line):
         tk = line.split(',')
-        t = numpy.array([float(tk[3]),float(tk[6]), float(tk[7]), float(tk[8])])
+        t = numpy.array([float(tk[3]),float(tk[6]), float(tk[7]), float(tk[8]), 1.0])
         print(str([float(tk[-1]), numpy.dot(a, t)]))
         sumsq = sumsq + (float(tk[-1])-numpy.dot(a, t))**2
         i = i + 1
