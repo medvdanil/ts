@@ -69,5 +69,9 @@ def parse_args():
     parser.add_argument('test_path', nargs=1)
     return parser.parse_args()
 
-args = parse_args()
-friends(args.learn_path[0], args.test_path[0])
+def main():
+    args = parse_args()
+    friends(args.learn_path[0], args.test_path[0])
+
+if __name__ == "__main__":
+    main()
