@@ -1,4 +1,5 @@
 import numpy
+import argparse
 
 def delJ(a, x, y):
     res = []
@@ -60,3 +61,13 @@ def friends(flearn, ftest):
     print(str(a))
     print("Standard deviation: " + str(numpy.sqrt(sumsq/i)))
     f.close()
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Linear regression method of gradient descent\nFinding number of friends')
+    parser.add_argument('learn_path', nargs=1)
+    parser.add_argument('test_path', nargs=1)
+    return parser.parse_args()
+
+args = parse_args()
+friends(args.learn_path[0], args.test_path[0])
