@@ -133,7 +133,7 @@ def main():
     num_of_ids = 10
     maxid = 240 * 1000 * 1000
     #https://oauth.vk.com/authorize?client_id=1&scope=friends&redirect_uri=https://oauth.vk.com/blank.html&display=page&v=5.12&response_type=token
-    token = "f3f0323f0bf6d5790be2d23c646a0ba208495c3fcb98a82d3554da312fc9d453b1ba2bb9bddcb4f8d0fcd"
+    token = ""
     api = VkApi(token)
     f = io.open("users.csv", "a", encoding='utf-8')
     for r in range(0, num_of_requests):
