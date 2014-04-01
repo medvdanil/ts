@@ -15,23 +15,31 @@ def delJ(a, x, y):
         for j in range(0, len(x)):
             s += 2*x[j][i]*tmp[j]
         res.append(s)
-    return numpy.array(res)/numpy.sqrt(numpy.dot(numpy.array(res), numpy.array(res)))
-
-def delJ2(a, x, y):
-    res = [2*a[0], 2*a[1]]
     return numpy.array(res)
-def gradient_descent(x, y, a=numpy.array([])):
-    if(not a):
+
+def gradient_descent(x, y, a=numpy.array([]), step0=1000.0):
+    if(len(a) == 0):
         a = numpy.array([1.0]*len(x[0]))
-    step = 10000.0
+    else:
+        a = numpy.array(a)
+    step = step0
     v = 1.0
-    i = 1
-    while v > 0.0001:
+    daold = numpy.array([0.0]*len(a))
+    while v > 0.00001:
         da = delJ(a, x, y)
-        #print(str(a), str(da))
-        v = numpy.dot(da, da)*step
-        a = a - da*step
-        step /= 1.1
+        #da = da/numpy.sqrt(numpy.sqrt(numpy.dot(da, da)))
+        v = step
+        vlen = numpy.dot(da, da)
+        if(vlen > 0.00001):
+            da = da/numpy.sqrt(vlen)
+
+        print(str(a)+ str(da)+ str(step)+" v:"+ str(v))
+        a = a - da*numpy.sqrt(step)
+        #if(numpy.dot(da, daold)<0):
+        step /= 1.005
+        #else:
+         #   step *= 1.1
+        daold = da
     return a
 def friends(flearn, ftest):
     f = open(flearn, "r")
@@ -46,6 +54,7 @@ def friends(flearn, ftest):
     f.close()
     print(str(x))
     a = gradient_descent(x, y)
+    a = gradient_descent(x, y, a, 10)
 
     f = open(ftest, "r")
     line=f.readline();
@@ -54,7 +63,7 @@ def friends(flearn, ftest):
     while(line):
         tk = line.split(',')
         t = numpy.array([float(tk[3]),float(tk[6]), float(tk[7]), float(tk[8]), 1.0])
-        print(str([float(tk[-1]), numpy.dot(a, t)]))
+        #print(str([float(tk[-1]), numpy.dot(a, t)]))
         sumsq = sumsq + (float(tk[-1])-numpy.dot(a, t))**2
         i = i + 1
         line=f.readline()

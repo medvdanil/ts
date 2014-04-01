@@ -82,6 +82,12 @@ class VkApi(Api):
         json = self.call("friends.get", uid=uid)
         for friend_id in json.get("response", []):
             yield str(friend_id)
+    def get_friend_recent(self, uid):
+        json = self.call("friends.getRecent", uid=uid)
+        res = []
+        for friend_id in json.get("response", []):
+            res.append(str(friend_id))
+        return res
 
     def get_profiles(self, uid_list):
         uids = ",".join(uid_list)
