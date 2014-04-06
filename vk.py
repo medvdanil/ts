@@ -2,15 +2,14 @@
 VKontake HTTP API implementation stub
 http://vk.com/pages?oid=-1&p=%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BC%D0%B5%D1%82%D0%BE%D0%B4%D0%BE%D0%B2_API
 """
-from docutils.nodes import warning
 
 __author__ = 'Nikolay Anokhin'
 
 import datetime
 import numpy
-import csv
-import io
 import urllib2
+import csv
+import argparse
 
 import user
 from api import Api
@@ -20,10 +19,20 @@ def save_page(id):
     f = open(str(id)+'.html', 'wb')
     f.write(html)
     f.close()
+def save_html(url, name):
+    req = urllib2.Request(url)
+    req.add_header("Referer", "http://vk.com/")
+    html = urllib2.urlopen(req).read()
+    f = open(name, 'wb')
+    f.write(html)
+    f.close()
 
 def get_page_info(id):
-    response = urllib2.urlopen('http://vk.com/id'+str(id))
-    html = response.read()
+    try:
+        response = urllib2.urlopen('http://vk.com/id'+str(id))
+        html = response.read()
+    except:
+        return -1, -1, -1
     w = html.find('<a name="wall">')
     if w!= -1:
         v = html[w:].find('slim_header')+w+len('slim_header>>')
@@ -113,7 +122,9 @@ class VkApi(Api):
         if json.get('relation'):
             u.relation = json.get('relation')
         if json.get('status') and len(json.get('status')) > 0:
-            u.is_exist_status = 1
+            u.is_exist_status = 2
+        else:
+             u.is_exist_status = 1
         u.number_of_friends = len(self.call("friends.get", uid=u.uid).get("response", []))
         u.subscriptions, u.wall_len, u.photos = get_page_info(u.uid)
         #u.subscriptions = len(self.call("subscriptions.get", uid=u.uid).get("response", []))
@@ -129,29 +140,50 @@ class VkApi(Api):
                 try:
                     return datetime.date(int(parts[2]), int(parts[1]), int(parts[0]))
                 except ValueError:
-                    print birth_date_str
+                    print(birth_date_str)
                     raise
 
-
+def parse_args():
+    parser = argparse.ArgumentParser(description='')
+    parser.add_argument('-t', dest='token', default="",
+                   help='token of vk user')
+    parser.add_argument('-r', dest='num_of_requests', default=20,
+                   help='token of vk user', type =int)
+    parser.add_argument('-o', dest='outfile', default='users.csv')
+    return parser.parse_args()
 
 def main():
     num_of_requests = 20
     num_of_ids = 10
-    maxid = 240 * 1000 * 1000
+    max_id = 240 * 1000 * 1000
     #https://oauth.vk.com/authorize?client_id=1&scope=friends&redirect_uri=https://oauth.vk.com/blank.html&display=page&v=5.12&response_type=token
-    token = ""
+    args = parse_args()
+    token = args.token
+    num_of_requests = args.num_of_requests
     api = VkApi(token)
-    f = io.open("users.csv", "a", encoding='utf-8')
-    for r in range(0, num_of_requests):
-        uids = []
-        for i in range(0, num_of_ids):
-            uid = numpy.random.randint(1, maxid)
-            uids.append(str(uid))
-        for u in api.get_profiles(uids):
-            f.write(u','.join(u.to_list())+'\n')
-        f.flush()
-        print("req"+str(r))
-    f.close();
+
+    append = False
+    outfile = parse_args().outfile
+    try:
+        with open(outfile, "r") as f:
+            if f.readline():
+                append = True
+    except IOError:
+        append = False
+    with open(outfile, "ab") as f:
+        field_names = ['id', 'firstname', 'lastname', 'gender', 'relationships', 'status', 'wall', 'subscriptions', 'photos', 'friends'];
+        dw = csv.DictWriter(f, field_names)
+        if not append:
+            dw.writeheader()
+        for r in range(0, num_of_requests):
+            uids = []
+            for i in range(0, num_of_ids):
+                uid = numpy.random.randint(1, max_id)
+                uids.append(str(uid))
+            for u in api.get_profiles(uids):
+                dw.writerow(dict(zip(field_names, u.to_list())))
+            f.flush()
+            print("req"+str(r))
     print("Ok")
 
 

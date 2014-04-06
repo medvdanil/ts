@@ -20,10 +20,10 @@ class User(object):
             self.age = int((date.today() - birth_date).days / 365.2425)
 
     def to_list(self):
-        return [unicode(self.uid), unicode(self.first_name), unicode(self.last_name),
-                           unicode(self.sex), unicode(self.relation), unicode(self.is_exist_status),
-                           unicode(self.wall_len), unicode(self.subscriptions), unicode(self.photos),
-                           unicode(self.number_of_friends)]
+        return [str(self.uid),self.first_name.encode('utf-8'), self.last_name.encode('utf-8'),
+                           str(self.sex), str(self.relation), str(self.is_exist_status),
+                           str(self.wall_len), str(self.subscriptions), str(self.photos),
+                           str(self.number_of_friends)]
     def to_tsv(self):
         return u'\t'.join(self.to_list())
     #def to_csv(self):
