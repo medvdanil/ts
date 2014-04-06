@@ -63,7 +63,7 @@ class FriendsPredictor(object):
         while(line and len(line) > 1):
             try:
                 tk = line.split(',')
-                x.append([float(tk[3]),float(tk[6]), float(tk[7]), float(tk[8]), 1.0])
+                x.append([float(tk[3]),float(tk[4]),float(tk[6]), float(tk[7]), float(tk[8]), 1.0])
                 y.append(float(tk[-1]))
             except:
                 print(line)
@@ -80,7 +80,7 @@ class FriendsPredictor(object):
         while(line and len(line) > 1):
             try:
                 tk = line.split(',')
-                t = numpy.array([float(tk[3]),float(tk[6]), float(tk[7]), float(tk[8]), 1.0])
+                t = numpy.array([float(tk[3]),float(tk[4]),float(tk[6]), float(tk[7]), float(tk[8]), 1.0])
                 print(str([float(tk[-1]), self.fit(t)]))
                 sumsq = sumsq + (float(tk[-1])-self.fit(t))**2
                 i = i + 1

@@ -27,8 +27,8 @@ def parse_args():
     return parser.parse_args()
 
 def main():
-    args = parse_args()
-    all_valid(args.in_path[0], args.out_path[0])
-    #all_valid("usersfil.csv", "usersfil2.csv")
+    #args = parse_args()
+    #all_valid(args.in_path[0], args.out_path[0])
+    all_valid("users.csv", "users2.csv")
 if __name__ == "__main__":
     main()
