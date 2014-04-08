@@ -1,11 +1,15 @@
 learn.csv - обучающая выборка 
-userfilt.csv - тестовая выборка
+test.csv - тестовая выборка
+
+users.csv - общий набор данных
 
 обучить и протестировать:
 python lrmgd.py learn.csv userfilt.csv
+кросс-валидация:
+python lrmgd.py cross-val users.csv
 
 получить информацию из vkontakte:
 python vk.py
 Результат можно найти в users.csv
-При желании можно отфильтровать его функцией all_valid('users.csv', 'usersfilt.csv') из файла filter.py
+При желании можно отфильтровать его  filter.py users.csv usersfilt.csv
 Фильтер оставляет лишь тех, у кого доступна вся нужная информция

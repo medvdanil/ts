@@ -1,5 +1,6 @@
 import numpy
 import argparse
+from sklearn import cross_validation
 
 class FriendsPredictor(object):
     """
@@ -7,9 +8,6 @@ class FriendsPredictor(object):
     """
     a = []
     @staticmethod
-
-
-
     def gradient_descent(x, y, a=numpy.array([]), step0=1000.0):
         def gradJ(a, x, y):
             res = []
@@ -48,49 +46,65 @@ class FriendsPredictor(object):
         return a
 
 
-    def fit(self, x=[]):
-        return numpy.dot(self.a, x)
+    def predict(self, X):
+        res = []
+        for x in X:
+            res.append(numpy.dot(self.a, x))
+        return res
 
-    def predict(self, x=[], y=[]):
-        self.a = self.gradient_descent(x, y)
-        self.a = self.gradient_descent(x, y, self.a, 10)
+    def fit(self, X, y):
+        self.a = self.gradient_descent(X, y)
+        self.a = self.gradient_descent(X, y, self.a, 10)
+    def get_params(self, deep = True):
+        return {}
+    def score(self, X, y):
+        y_pred = numpy.array(self.predict(X))
+        y_pred = y_pred - numpy.array(y)
+        return numpy.sqrt(numpy.dot(y_pred, y_pred)/len(y_pred))
+def readCSV(fname):
+    f = open(fname, "r")
+    x = []
+    y = []
+    line=f.readline();
+    while(line and len(line) > 1):
+        try:
+            tk = line.split(',')
+            x.append([float(tk[3]),float(tk[4]),float(tk[6]), float(tk[7]), float(tk[8]), 1.0])
+            y.append(float(tk[-1]))
+        except:
+            print(line)
+        line=f.readline()
+    f.close()
+    return x, y
+def friends(flearn, ftest):
+    f = open(flearn, "r")
+    x, y = readCSV(flearn)
+    #print(str(x))
+    est = FriendsPredictor()
+    est.fit(x, y)
 
-    def friends(self, flearn, ftest):
-        f = open(flearn, "r")
-        x = []
-        y = []
-        line=f.readline();
-        while(line and len(line) > 1):
-            try:
-                tk = line.split(',')
-                x.append([float(tk[3]),float(tk[4]),float(tk[6]), float(tk[7]), float(tk[8]), 1.0])
-                y.append(float(tk[-1]))
-            except:
-                print(line)
-            line=f.readline()
-        f.close()
-        #print(str(x))
-        self.predict(x, y)
-
-        f = open(ftest, "r")
-        line=f.readline();
-        sumsq = 0
-        i = 0
-        print("Prediction:\n")
-        while(line and len(line) > 1):
-            try:
-                tk = line.split(',')
-                t = numpy.array([float(tk[3]),float(tk[4]),float(tk[6]), float(tk[7]), float(tk[8]), 1.0])
-                print(str([float(tk[-1]), self.fit(t)]))
-                sumsq = sumsq + (float(tk[-1])-self.fit(t))**2
-                i = i + 1
-            except:
-                print(line)
-            line=f.readline()
-        print(str(self.a))
-        print("Standard deviation: " + str(numpy.sqrt(sumsq/i)))
-        f.close()
-
+    f = open(ftest, "r")
+    line=f.readline();
+    sumsq = 0
+    i = 0
+    print("Prediction:\n")
+    while(line and len(line) > 1):
+        try:
+            tk = line.split(',')
+            t = numpy.array([float(tk[3]),float(tk[4]),float(tk[6]), float(tk[7]), float(tk[8]), 1.0])
+            print(str([float(tk[-1]), est.predict([t])]))
+            sumsq = sumsq + (float(tk[-1])-est.predict([t])[0])**2
+            i = i + 1
+        except:
+            print(line)
+        line=f.readline()
+    print(str(est.a))
+    print("Standard deviation: " + str(numpy.sqrt(sumsq/i)))
+    f.close()
+def crossVal(fname):
+    x, yl = readCSV(fname)
+    scores = cross_validation.cross_val_score(FriendsPredictor(), x, numpy.array(yl), cv=5)
+    print("Standard deviation: " + str(sum(scores)/len(scores)))
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Linear regression method of gradient descent\nFinding number of friends')
@@ -100,8 +114,10 @@ def parse_args():
 
 def main():
     args = parse_args()
-    fp = FriendsPredictor()
-    fp.friends(args.learn_path[0], args.test_path[0])
+    if args.learn_path[0] == 'cross-val':
+        crossVal(args.test_path[0])
+    else:
+        friends(args.learn_path[0], args.test_path[0])
 
 if __name__ == "__main__":
     main()
